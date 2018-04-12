@@ -1,0 +1,24 @@
+version: '2'
+services:
+    tcfblockchain-app:
+        image: tcfblockchain
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATA_CASSANDRA_CONTACTPOINTS=tcfblockchain-cassandra
+            - JHIPSTER_SLEEP=30 # gives time for the Cassandra cluster to start and execute the migration scripts
+        ports:
+            - 8080:8080
+    tcfblockchain-cassandra:
+        extends:
+            file: cassandra-cluster.yml
+            service: tcfblockchain-cassandra
+    tcfblockchain-cassandra-node:
+        image: cassandra:3.9
+        environment:
+            - CASSANDRA_SEEDS=tcfblockchain-cassandra
+    tcfblockchain-cassandra-migration:
+        extends:
+            file: cassandra-migration.yml
+            service: tcfblockchain-cassandra-migration
+        environment:
+            - CREATE_KEYSPACE_SCRIPT=create-keyspace-prod.cql
